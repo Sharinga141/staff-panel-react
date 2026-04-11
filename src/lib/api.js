@@ -47,3 +47,11 @@ export function logout() {
   localStorage.removeItem('token')
   window.location.href = '/login'
 }
+export async function getSettings() {
+  try {
+    const res = await fetch(`${API_URL}/settings`)
+    return await res.json()
+  } catch {
+    return {}
+  }
+}
