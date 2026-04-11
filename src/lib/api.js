@@ -1,5 +1,4 @@
 const API_URL = 'https://staff-panel-api.onrender.com'
-console.log('API_URL:', API_URL)
 
 function getToken() {
   return localStorage.getItem('token')
@@ -47,6 +46,7 @@ export function logout() {
   localStorage.removeItem('token')
   window.location.href = '/login'
 }
+
 export async function getSettings() {
   try {
     const res = await fetch(`${API_URL}/settings`)

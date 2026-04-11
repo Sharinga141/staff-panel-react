@@ -86,41 +86,41 @@ export default function Topbar({ user, userRole }) {
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         padding: '0 28px', background: '#16182a', borderBottom: '2px solid #5865F2',
-        height: '72px', flexShrink: 0, position: 'relative'
+        height: '72px', flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '12px',
-            paddingRight: '24px', borderRight: '0.5px solid #2e2e4a',
-            marginRight: '6px', height: '100%'
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingRight: '24px', borderRight: '0.5px solid #2e2e4a', marginRight: '6px', height: '100%' }}>
+
+            {/* Logo cliquable */}
             <div
               onClick={openLogoModal}
-              style={{
-                width: '46px', height: '46px', borderRadius: '50%', overflow: 'hidden',
-                background: '#26215C', border: '2px solid #5865F2', flexShrink: 0,
-                cursor: isAdmin ? 'pointer' : 'default', position: 'relative'
-              }}
+              style={{ width: '46px', height: '46px', borderRadius: '50%', overflow: 'hidden', background: '#26215C', border: '2px solid #5865F2', flexShrink: 0, cursor: isAdmin ? 'pointer' : 'default', position: 'relative' }}
               title={isAdmin ? 'Cliquer pour modifier le logo' : ''}
             >
               <img src={logoSrc} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.src = '/DOJ.png'} />
               {isAdmin && (
-                <div style={{
-                  position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  opacity: 0, transition: 'opacity 0.2s', borderRadius: '50%'
-                }}
+                <div className="logo-hover-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s', borderRadius: '50%' }}
                   onMouseEnter={e => e.currentTarget.style.opacity = '1'}
                   onMouseLeave={e => e.currentTarget.style.opacity = '0'}
                 >
-                  <i className="bi bi-pencil-fill" style={{ fontSize: '16px', color: 'white' }} />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
                 </div>
               )}
             </div>
+
+            {/* Nom cliquable */}
             <div onClick={openNameModal} style={{ cursor: isAdmin ? 'pointer' : 'default' }} title={isAdmin ? 'Cliquer pour modifier le nom' : ''}>
               <div style={{ fontSize: '13px', fontWeight: 700, color: '#e2e0f0', letterSpacing: '0.07em', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {settings.panel_name || 'RÉFÉRENCEMENT GOUV'}
-                {isAdmin && <i className="bi bi-pencil-fill" style={{ fontSize: '11px', color: '#7c7c9a' }} />}
+                {isAdmin && (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7c7c9a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                )}
               </div>
               <div style={{ fontSize: '9px', color: '#7c7c9a', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>
                 {settings.panel_subtitle || "Panel d'administration"}
@@ -128,6 +128,7 @@ export default function Topbar({ user, userRole }) {
             </div>
           </div>
 
+          {/* Nav */}
           <nav style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
             {navLinks.map(link => {
               if (link.perm && !perms[link.perm]) return null
@@ -151,6 +152,7 @@ export default function Topbar({ user, userRole }) {
           </nav>
         </div>
 
+        {/* Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ fontSize: '11px', color: '#7c7c9a', textAlign: 'right', lineHeight: 1.5 }}>{clock}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#1e2035', borderRadius: '9px', padding: '5px 12px', border: '0.5px solid #2e2e4a' }}>
@@ -163,7 +165,9 @@ export default function Topbar({ user, userRole }) {
             <span className={`badge ${badgeClass}`} style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', padding: '2px 8px', borderRadius: '6px' }}>{userRole}</span>
           </div>
           <button onClick={logout} style={{ background: 'none', border: 'none', color: '#E24B4A', cursor: 'pointer', width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
-            <i className="bi bi-box-arrow-right" style={{ fontSize: '17px' }} />
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
           </button>
         </div>
       </div>
@@ -204,7 +208,7 @@ export default function Topbar({ user, userRole }) {
               <input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://exemple.com/logo.png" />
             </div>
             <div style={{ fontSize: '11px', color: '#7c7c9a', marginBottom: '10px' }}>
-              Entrez l'URL directe d'une image (PNG, JPG). L'aperçu se met à jour automatiquement.
+              Entrez l'URL directe d'une image (PNG, JPG).
             </div>
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setEditLogoModal(false)}>Annuler</button>
