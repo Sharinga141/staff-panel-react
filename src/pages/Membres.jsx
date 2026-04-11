@@ -9,8 +9,10 @@ export default function Membres({ user }) {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
+  const [polesModal, setPolesModal] = useState(false)
   const [editId, setEditId] = useState(null)
   const [form, setForm] = useState({ prenom: '', nom: '', telephone: '', pole: '', uid: '' })
+  const [newPole, setNewPole] = useState('')
   const [toast, setToast] = useState(null)
   const perms = getPerms(user?.role)
 
@@ -67,6 +69,27 @@ export default function Membres({ user }) {
     } catch { showToast('Erreur', '#E24B4A') }
   }
 
+  async function addPole() {
+    if (!newPole.trim()) return
+    try {
+      await api.post('/poles', { nom: newPole.trim() })
+      setNewPole('')
+      const p = await api.get('/poles')
+      setPoles(p)
+      showToast('Pôle ajouté')
+    } catch (err) { showToast('Erreur : ' + (err.error || 'inconnue'), '#E24B4A') }
+  }
+
+  async function deletePole(id, nom) {
+    if (!confirm(`Supprimer le pôle "${nom}" ?`)) return
+    try {
+      await api.delete(`/poles/${id}`)
+      const p = await api.get('/poles')
+      setPoles(p)
+      showToast('Pôle supprimé', '#E24B4A')
+    } catch { showToast('Erreur', '#E24B4A') }
+  }
+
   const filtered = membres.filter(m =>
     `${m.prenom} ${m.nom} ${m.uid} ${m.pole}`.toLowerCase().includes(search.toLowerCase())
   )
@@ -83,28 +106,26 @@ export default function Membres({ user }) {
             <h1>Membres</h1>
             <p>{membres.length} membre(s) enregistré(s)</p>
           </div>
-          {perms.canEdit && (
-            <button className="add-btn" onClick={() => openModal()}>+ Ajouter un membre</button>
-          )}
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {perms.canEdit && (
+              <button style={{ background: '#1e2035', border: '0.5px solid #2e2e4a', borderRadius: '10px', color: '#e2e0f0', fontSize: '13px', fontWeight: 500, padding: '9px 18px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={() => setPolesModal(true)}>
+                Gérer les pôles
+              </button>
+            )}
+            {perms.canEdit && (
+              <button className="add-btn" onClick={() => openModal()}>+ Ajouter un membre</button>
+            )}
+          </div>
         </div>
 
         {!perms.canEdit && (
-          <div style={{
-            background: '#1D9E7510', border: '0.5px solid #1D9E7540', borderRadius: '10px',
-            padding: '10px 16px', fontSize: '12px', color: '#5DCAA5', marginBottom: '16px',
-            display: 'flex', alignItems: 'center', gap: '8px'
-          }}>
+          <div style={{ background: '#1D9E7510', border: '0.5px solid #1D9E7540', borderRadius: '10px', padding: '10px 16px', fontSize: '12px', color: '#5DCAA5', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             ℹ️ Vous avez un accès en lecture seule sur cette page.
           </div>
         )}
 
         <div className="toolbar">
-          <input
-            className="search"
-            placeholder="Rechercher un membre..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+          <input className="search" placeholder="Rechercher un membre..." value={search} onChange={e => setSearch(e.target.value)} />
           <span style={{ fontSize: '13px', color: '#7c7c9a' }}>{filtered.length} résultat(s)</span>
         </div>
 
@@ -123,31 +144,19 @@ export default function Membres({ user }) {
               {loading && <tr><td colSpan={perms.canEdit ? 5 : 4} className="empty">Chargement...</td></tr>}
               {!loading && filtered.length === 0 && <tr><td colSpan={perms.canEdit ? 5 : 4} className="empty">Aucun membre</td></tr>}
               {filtered.map((m, i) => {
-                const c = POLE_COLORS[i % POLE_COLORS.length]
+                const c = POLE_COLORS[poles.findIndex(p => p.nom === m.pole) % POLE_COLORS.length] || '#5865F2'
                 return (
                   <tr key={m.id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{
-                          width: '34px', height: '34px', borderRadius: '50%', background: '#26215C',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '12px', fontWeight: 600, color: '#AFA9EC', flexShrink: 0
-                        }}>
-                          {m.photo
-                            ? <img src={m.photo} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-                            : (m.prenom[0] + m.nom[0]).toUpperCase()
-                          }
+                        <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#26215C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600, color: '#AFA9EC', flexShrink: 0 }}>
+                          {m.photo ? <img src={m.photo} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} /> : (m.prenom[0] + m.nom[0]).toUpperCase()}
                         </div>
                         <span style={{ fontWeight: 500 }}>{m.prenom} {m.nom}</span>
                       </div>
                     </td>
                     <td style={{ color: '#7c7c9a' }}>{m.telephone || '—'}</td>
-                    <td>
-                      <span style={{
-                        fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: 500,
-                        background: `${c}22`, color: c, border: `0.5px solid ${c}40`
-                      }}>{m.pole || '—'}</span>
-                    </td>
+                    <td><span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: 500, background: `${c}22`, color: c, border: `0.5px solid ${c}40` }}>{m.pole || '—'}</span></td>
                     <td><span className="id-badge">{m.uid}</span></td>
                     {perms.canEdit && (
                       <td>
@@ -163,7 +172,7 @@ export default function Membres({ user }) {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal membre */}
       {modal && (
         <div className="overlay" onClick={e => e.target === e.currentTarget && setModal(false)}>
           <div className="modal">
@@ -196,7 +205,7 @@ export default function Membres({ user }) {
               <input value={form.uid} onChange={e => setForm({ ...form, uid: e.target.value })} placeholder="MBR-001" />
             </div>
             <div className="modal-actions">
-              {editId && <button className="btn-danger" onClick={() => del(editId, `${form.prenom} ${form.nom}`).then(() => setModal(false))}>Supprimer</button>}
+              {editId && <button className="btn-danger" onClick={() => { del(editId, `${form.prenom} ${form.nom}`); setModal(false) }}>Supprimer</button>}
               <button className="btn-cancel" onClick={() => setModal(false)}>Annuler</button>
               <button className="btn-submit" onClick={save}>{editId ? 'Enregistrer' : 'Ajouter'}</button>
             </div>
@@ -204,9 +213,41 @@ export default function Membres({ user }) {
         </div>
       )}
 
-      {toast && (
-        <div className="toast" style={{ background: toast.color }}>✓ {toast.msg}</div>
+      {/* Modal pôles */}
+      {polesModal && (
+        <div className="overlay" onClick={e => e.target === e.currentTarget && setPolesModal(false)}>
+          <div className="modal">
+            <h2>Gérer les pôles</h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px', minHeight: '40px' }}>
+              {poles.length === 0 && <span style={{ color: '#7c7c9a', fontSize: '13px' }}>Aucun pôle</span>}
+              {poles.map((p, i) => {
+                const c = POLE_COLORS[i % POLE_COLORS.length]
+                return (
+                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: `${c}22`, border: `0.5px solid ${c}40`, borderRadius: '8px', padding: '5px 10px' }}>
+                    <span style={{ fontSize: '12px', color: c, fontWeight: 500 }}>{p.nom}</span>
+                    <button onClick={() => deletePole(p.id, p.nom)} style={{ background: 'none', border: 'none', color: '#E24B4A', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 2px' }}>×</button>
+                  </div>
+                )
+              })}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                value={newPole}
+                onChange={e => setNewPole(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addPole()}
+                placeholder="Nom du nouveau pôle..."
+                style={{ flex: 1, background: '#0f1117', border: '0.5px solid #2e2e4a', borderRadius: '9px', padding: '9px 12px', color: '#e2e0f0', fontSize: '13px', fontFamily: 'inherit', outline: 'none' }}
+              />
+              <button className="btn-submit" onClick={addPole}>Ajouter</button>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setPolesModal(false)}>Fermer</button>
+            </div>
+          </div>
+        </div>
       )}
+
+      {toast && <div className="toast" style={{ background: toast.color }}>✓ {toast.msg}</div>}
     </div>
   )
 }
