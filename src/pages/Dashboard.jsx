@@ -65,9 +65,10 @@ export default function Dashboard({ user }) {
               }
             </div>
             <div>
-              <div style={{ fontSize: '17px', fontWeight: 700, marginBottom: '3px' }}>
-                Bonjour, {user?.username} 👋
-              </div>
+                <div style={{ fontSize: '17px', fontWeight: 700, marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  Bonjour, {user?.username}
+                  <i className="bi bi-hand-thumbs-up" style={{ fontSize: '18px', color: '#5865F2' }} />
+                </div>
               <div style={{ fontSize: '12px', color: '#7c7c9a' }}>{dateStr} — Panel opérationnel</div>
             </div>
           </div>
@@ -84,20 +85,23 @@ export default function Dashboard({ user }) {
         {/* Métriques */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: '12px', marginBottom: '20px' }}>
           {[
-            { label: 'Membres enregistrés', value: stats.membres, color: '#5865F2', icon: '👥' },
-            { label: 'Référents actifs', value: stats.referents, color: '#1D9E75', icon: '👤' },
-            { label: "Logs aujourd'hui", value: stats.logs, color: '#E24B4A', icon: '📋' }
-          ].map(m => (
-            <div key={m.label} style={{
-              background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px',
-              padding: '16px 18px', borderTop: `3px solid ${m.color}`
-            }}>
-              <div style={{ fontSize: '11px', color: '#7c7c9a', marginBottom: '8px' }}>{m.label}</div>
-              <div style={{ fontSize: '26px', fontWeight: 700, color: m.color }}>
-                {loading ? '—' : m.value}
+              { label: 'Membres enregistrés', value: stats.membres, color: '#5865F2', icon: 'bi-people-fill' },
+              { label: 'Référents actifs', value: stats.referents, color: '#1D9E75', icon: 'bi-person-badge' },
+              { label: "Logs aujourd'hui", value: stats.logs, color: '#E24B4A', icon: 'bi-journal-text' }
+            ].map(m => (
+              <div key={m.label} style={{
+                background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px',
+                padding: '16px 18px', borderTop: `3px solid ${m.color}`
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '11px', color: '#7c7c9a' }}>
+                  <i className={`bi ${m.icon}`} style={{ fontSize: '14px' }} />
+                  {m.label}
+                </div>
+                <div style={{ fontSize: '26px', fontWeight: 700, color: m.color }}>
+                  {loading ? '—' : m.value}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* Grille */}

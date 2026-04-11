@@ -113,17 +113,14 @@ export default function Topbar({ user, userRole }) {
                   onMouseEnter={e => e.currentTarget.style.opacity = '1'}
                   onMouseLeave={e => e.currentTarget.style.opacity = '0'}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
+                  <i className="bi bi-pencil-fill" style={{ fontSize: '16px', color: 'white' }} />
                 </div>
               )}
             </div>
             <div onClick={openNameModal} style={{ cursor: isAdmin ? 'pointer' : 'default' }} title={isAdmin ? 'Cliquer pour modifier le nom' : ''}>
               <div style={{ fontSize: '13px', fontWeight: 700, color: '#e2e0f0', letterSpacing: '0.07em', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {settings.panel_name || 'RÉFÉRENCEMENT GOUV'}
-                {isAdmin && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7c7c9a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>}
+                {isAdmin && <i className="bi bi-pencil-fill" style={{ fontSize: '11px', color: '#7c7c9a' }} />}
               </div>
               <div style={{ fontSize: '9px', color: '#7c7c9a', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>
                 {settings.panel_subtitle || "Panel d'administration"}
@@ -166,9 +163,7 @@ export default function Topbar({ user, userRole }) {
             <span className={`badge ${badgeClass}`} style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', padding: '2px 8px', borderRadius: '6px' }}>{userRole}</span>
           </div>
           <button onClick={logout} style={{ background: 'none', border: 'none', color: '#E24B4A', cursor: 'pointer', width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
+            <i className="bi bi-box-arrow-right" style={{ fontSize: '17px' }} />
           </button>
         </div>
       </div>

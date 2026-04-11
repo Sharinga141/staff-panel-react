@@ -6,7 +6,12 @@ import Topbar from '../components/Topbar'
 const COLORS = ['#5865F2','#1D9E75','#EF9F27','#E24B4A','#AFA9EC','#5DCAA5','#C084FC','#F97316','#06B6D4','#EC4899']
 
 const TYPE_ICONS = {
-  PDF: '📄', Word: '📝', Excel: '📊', Image: '🖼️', Lien: '🔗', Autre: '📁'
+  PDF: 'bi-file-earmark-pdf-fill',
+  Word: 'bi-file-earmark-word-fill',
+  Excel: 'bi-file-earmark-excel-fill',
+  Image: 'bi-file-earmark-image-fill',
+  Lien: 'bi-link-45deg',
+  Autre: 'bi-file-earmark'
 }
 
 export default function Registres({ user }) {
@@ -207,9 +212,7 @@ export default function Registres({ user }) {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${cat.color}22`, border: `0.5px solid ${cat.color}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={cat.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                    </svg>
+                    <i className="bi bi-folder2-open" style={{ fontSize: '18px', color: cat.color }} />
                   </div>
                   <div>
                     <div style={{ fontSize: '15px', fontWeight: 600 }}>{cat.name}</div>
@@ -226,9 +229,7 @@ export default function Registres({ user }) {
                       <button className="action-btn danger" onClick={() => deleteCat(cat.id, cat.name)}>Supprimer</button>
                     </>
                   )}
-                  <svg style={{ transform: cat.open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', color: '#7c7c9a' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9"/>
-                  </svg>
+                  <i className={`bi bi-chevron-${cat.open ? 'up' : 'down'}`} style={{ fontSize: '16px', color: '#7c7c9a' }} />
                 </div>
               </div>
 
@@ -261,9 +262,7 @@ export default function Registres({ user }) {
                         onMouseLeave={e => e.currentTarget.style.background = '#13152a'}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <svg style={{ color: '#5DCAA5' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                          </svg>
+                          <i className="bi bi-folder2" style={{ fontSize: '16px', color: '#5DCAA5' }} />
                           <span style={{ fontSize: '13px', fontWeight: 600 }}>{sub.name}</span>
                           <span style={{ fontSize: '11px', color: '#7c7c9a' }}>{sub.docs?.length || 0} doc(s)</span>
                         </div>
@@ -274,9 +273,7 @@ export default function Registres({ user }) {
                               <button className="action-btn danger" style={{ fontSize: '11px', padding: '3px 8px' }} onClick={() => deleteSubcat(sub.id, sub.name)}>Supprimer</button>
                             </>
                           )}
-                          <svg style={{ transform: sub.open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', color: '#7c7c9a' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="6 9 12 15 18 9"/>
-                          </svg>
+                          <i className={`bi bi-chevron-${sub.open ? 'up' : 'down'}`} style={{ fontSize: '14px', color: '#7c7c9a' }} />
                         </div>
                       </div>
 
@@ -297,7 +294,7 @@ export default function Registres({ user }) {
                               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                             >
                               <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#16182a', border: '0.5px solid #2e2e4a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px' }}>
-                                {TYPE_ICONS[doc.type] || TYPE_ICONS.Autre}
+                                <i className={`bi ${TYPE_ICONS[doc.type] || TYPE_ICONS.Autre}`} style={{ fontSize: '16px' }} />
                               </div>
                               <div style={{ flex: 1 }}>
                                 <div style={{ fontSize: '13px', fontWeight: 500 }}>{doc.name}</div>
@@ -322,7 +319,7 @@ export default function Registres({ user }) {
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#0f1117', border: '0.5px solid #2e2e4a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px' }}>
-                        {TYPE_ICONS[doc.type] || TYPE_ICONS.Autre}
+                        <i className={`bi ${TYPE_ICONS[doc.type] || TYPE_ICONS.Autre}`} style={{ fontSize: '16px' }} />
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '13px', fontWeight: 500 }}>{doc.name}</div>

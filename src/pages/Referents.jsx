@@ -82,9 +82,7 @@ export default function Referents({ user }) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Topbar user={user} userRole={user?.role || 'Joueur'} />
       <div className="access-denied">
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#E24B4A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-        </svg>
+        <i className="bi bi-slash-circle" style={{ fontSize: '52px', color: '#E24B4A' }} />
         <h2>Accès refusé</h2>
         <p>Vous n'avez pas les permissions pour accéder à cette page.</p>
       </div>

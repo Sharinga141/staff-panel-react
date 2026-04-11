@@ -127,9 +127,7 @@ export default function Planning({ user }) {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5865F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
+            <i className="bi bi-calendar3" style={{ fontSize: '28px', color: '#5865F2' }} />
             <div>
               <div style={{ fontSize: '22px', fontWeight: 700 }}>Planning Global</div>
               <div style={{ fontSize: '11px', color: '#7c7c9a', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: '3px' }}>
@@ -147,13 +145,13 @@ export default function Planning({ user }) {
               {poles.map(p => <option key={p.id} value={p.nom}>{p.nom}</option>)}
             </select>
             <button onClick={() => setWeekStart(w => { const d = new Date(w); d.setDate(d.getDate()-7); return d })} style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '9px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#e2e0f0' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <i className="bi bi-chevron-left" style={{ fontSize: '16px' }} />
             </button>
             <button onClick={() => setWeekStart(getMonday(new Date()))} style={{ background: '#5865F2', border: 'none', borderRadius: '9px', padding: '8px 18px', color: '#fff', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               Aujourd'hui
             </button>
             <button onClick={() => setWeekStart(w => { const d = new Date(w); d.setDate(d.getDate()+7); return d })} style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '9px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#e2e0f0' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              <i className="bi bi-chevron-right" style={{ fontSize: '16px' }} />
             </button>
             {canEdit && (
               <button onClick={() => openAddModal()} style={{ background: '#EF9F27', border: 'none', borderRadius: '9px', padding: '8px 18px', color: '#0f1117', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '7px' }}>
