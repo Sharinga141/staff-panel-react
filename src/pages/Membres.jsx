@@ -11,7 +11,7 @@ export default function Membres({ user }) {
   const [modal, setModal] = useState(false)
   const [polesModal, setPolesModal] = useState(false)
   const [editId, setEditId] = useState(null)
-  const [form, setForm] = useState({ prenom: '', nom: '', telephone: '', pole: '', uid: '' })
+  const [form, setForm] = useState({ prenom: '', nom: '', telephone: '', pole: '', uid: '', rib: '' })
   const [newPole, setNewPole] = useState('')
   const [toast, setToast] = useState(null)
   const perms = getPerms(user?.role)
@@ -38,12 +38,26 @@ export default function Membres({ user }) {
 
   function openModal(m = null) {
     setEditId(m?.id || null)
-    setForm(m ? { prenom: m.prenom, nom: m.nom, telephone: m.telephone || '', pole: m.pole || '', uid: m.uid } : { prenom: '', nom: '', telephone: '', pole: '', uid: '' })
+    setForm(m ? {
+      prenom: m.prenom,
+      nom: m.nom,
+      telephone: m.telephone || '',
+      pole: m.pole || '',
+      uid: m.uid,
+      rib: m.rib || ''
+    } : {
+      prenom: '',
+      nom: '',
+      telephone: '',
+      pole: '',
+      uid: '',
+      rib: ''
+    })
     setModal(true)
   }
 
   async function save() {
-    if (!form.prenom || !form.nom || !form.pole || !form.uid) return alert('Remplir tous les champs')
+    if (!form.prenom || !form.nom || !form.pole || !form.uid) return alert('Remplir tous les champs obligatoires')
     try {
       if (editId) {
         await api.put(`/membres/${editId}`, form)
@@ -135,28 +149,38 @@ export default function Membres({ user }) {
               <tr>
                 <th>Membre</th>
                 <th>Téléphone</th>
+                <th>RIB</th>
                 <th>Pôle</th>
                 <th>ID unique</th>
                 {perms.canEdit && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
-              {loading && <tr><td colSpan={perms.canEdit ? 5 : 4} className="empty">Chargement...</td></tr>}
-              {!loading && filtered.length === 0 && <tr><td colSpan={perms.canEdit ? 5 : 4} className="empty">Aucun membre</td></tr>}
-              {filtered.map((m, i) => {
-                const c = POLE_COLORS[poles.findIndex(p => p.nom === m.pole) % POLE_COLORS.length] || '#5865F2'
+              {loading && <tr><td colSpan={perms.canEdit ? 6 : 5} className="empty">Chargement...</td></tr>}
+              {!loading && filtered.length === 0 && <tr><td colSpan={perms.canEdit ? 6 : 5} className="empty">Aucun membre</td></tr>}
+              {filtered.map((m) => {
+                const poleIdx = poles.findIndex(p => p.nom === m.pole)
+                const c = POLE_COLORS[poleIdx >= 0 ? poleIdx % POLE_COLORS.length : 0]
                 return (
                   <tr key={m.id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#26215C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600, color: '#AFA9EC', flexShrink: 0 }}>
-                          {m.photo ? <img src={m.photo} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} /> : (m.prenom[0] + m.nom[0]).toUpperCase()}
+                          {m.photo
+                            ? <img src={m.photo} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                            : (m.prenom[0] + m.nom[0]).toUpperCase()
+                          }
                         </div>
                         <span style={{ fontWeight: 500 }}>{m.prenom} {m.nom}</span>
                       </div>
                     </td>
                     <td style={{ color: '#7c7c9a' }}>{m.telephone || '—'}</td>
-                    <td><span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: 500, background: `${c}22`, color: c, border: `0.5px solid ${c}40` }}>{m.pole || '—'}</span></td>
+                    <td style={{ color: '#7c7c9a', fontFamily: 'monospace', fontSize: '12px' }}>{m.rib || '—'}</td>
+                    <td>
+                      <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: 500, background: `${c}22`, color: c, border: `0.5px solid ${c}40` }}>
+                        {m.pole || '—'}
+                      </span>
+                    </td>
                     <td><span className="id-badge">{m.uid}</span></td>
                     {perms.canEdit && (
                       <td>
@@ -203,6 +227,10 @@ export default function Membres({ user }) {
             <div className="form-group">
               <label>ID unique</label>
               <input value={form.uid} onChange={e => setForm({ ...form, uid: e.target.value })} placeholder="MBR-001" />
+            </div>
+            <div className="form-group">
+              <label>RIB <span style={{ color: '#7c7c9a', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optionnel)</span></label>
+              <input value={form.rib} onChange={e => setForm({ ...form, rib: e.target.value })} placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX" />
             </div>
             <div className="modal-actions">
               {editId && <button className="btn-danger" onClick={() => { del(editId, `${form.prenom} ${form.nom}`); setModal(false) }}>Supprimer</button>}
