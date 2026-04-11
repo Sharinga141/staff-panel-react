@@ -32,7 +32,11 @@ export default function Registres({ user }) {
   const [docForm, setDocForm] = useState({ name: '', type: 'PDF', url: '', description: '' })
   const perms = getPerms(user?.role)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+  load()
+  const interval = setInterval(load, 30000)
+  return () => clearInterval(interval)
+}, [])
 
   async function load() {
     try {

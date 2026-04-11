@@ -16,7 +16,11 @@ export default function Membres({ user }) {
   const [toast, setToast] = useState(null)
   const perms = getPerms(user?.role)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   async function load() {
     try {
@@ -39,20 +43,9 @@ export default function Membres({ user }) {
   function openModal(m = null) {
     setEditId(m?.id || null)
     setForm(m ? {
-      prenom: m.prenom,
-      nom: m.nom,
-      telephone: m.telephone || '',
-      pole: m.pole || '',
-      uid: m.uid,
-      rib: m.rib || ''
-    } : {
-      prenom: '',
-      nom: '',
-      telephone: '',
-      pole: '',
-      uid: '',
-      rib: ''
-    })
+      prenom: m.prenom, nom: m.nom, telephone: m.telephone || '',
+      pole: m.pole || '', uid: m.uid, rib: m.rib || ''
+    } : { prenom: '', nom: '', telephone: '', pole: '', uid: '', rib: '' })
     setModal(true)
   }
 
@@ -166,21 +159,14 @@ export default function Membres({ user }) {
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#26215C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600, color: '#AFA9EC', flexShrink: 0 }}>
-                          {m.photo
-                            ? <img src={m.photo} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-                            : (m.prenom[0] + m.nom[0]).toUpperCase()
-                          }
+                          {m.photo ? <img src={m.photo} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} /> : (m.prenom[0] + m.nom[0]).toUpperCase()}
                         </div>
                         <span style={{ fontWeight: 500 }}>{m.prenom} {m.nom}</span>
                       </div>
                     </td>
                     <td style={{ color: '#7c7c9a' }}>{m.telephone || '—'}</td>
                     <td style={{ color: '#7c7c9a', fontFamily: 'monospace', fontSize: '12px' }}>{m.rib || '—'}</td>
-                    <td>
-                      <span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: 500, background: `${c}22`, color: c, border: `0.5px solid ${c}40` }}>
-                        {m.pole || '—'}
-                      </span>
-                    </td>
+                    <td><span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: 500, background: `${c}22`, color: c, border: `0.5px solid ${c}40` }}>{m.pole || '—'}</span></td>
                     <td><span className="id-badge">{m.uid}</span></td>
                     {perms.canEdit && (
                       <td>
@@ -196,7 +182,6 @@ export default function Membres({ user }) {
         </div>
       </div>
 
-      {/* Modal membre */}
       {modal && (
         <div className="overlay" onClick={e => e.target === e.currentTarget && setModal(false)}>
           <div className="modal">
@@ -241,7 +226,6 @@ export default function Membres({ user }) {
         </div>
       )}
 
-      {/* Modal pôles */}
       {polesModal && (
         <div className="overlay" onClick={e => e.target === e.currentTarget && setPolesModal(false)}>
           <div className="modal">
@@ -259,13 +243,7 @@ export default function Membres({ user }) {
               })}
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                value={newPole}
-                onChange={e => setNewPole(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addPole()}
-                placeholder="Nom du nouveau pôle..."
-                style={{ flex: 1, background: '#0f1117', border: '0.5px solid #2e2e4a', borderRadius: '9px', padding: '9px 12px', color: '#e2e0f0', fontSize: '13px', fontFamily: 'inherit', outline: 'none' }}
-              />
+              <input value={newPole} onChange={e => setNewPole(e.target.value)} onKeyDown={e => e.key === 'Enter' && addPole()} placeholder="Nom du nouveau pôle..." style={{ flex: 1, background: '#0f1117', border: '0.5px solid #2e2e4a', borderRadius: '9px', padding: '9px 12px', color: '#e2e0f0', fontSize: '13px', fontFamily: 'inherit', outline: 'none' }} />
               <button className="btn-submit" onClick={addPole}>Ajouter</button>
             </div>
             <div className="modal-actions">

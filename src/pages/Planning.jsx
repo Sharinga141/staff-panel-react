@@ -41,7 +41,11 @@ export default function Planning({ user }) {
   const [toast, setToast] = useState(null)
 
   useEffect(() => { loadPoles() }, [])
-  useEffect(() => { loadWeek() }, [weekStart])
+ useEffect(() => {
+  loadWeek()
+  const interval = setInterval(loadWeek, 30000)
+  return () => clearInterval(interval)
+}, [weekStart])
 
   async function loadPoles() {
     try { const data = await api.get('/poles'); setPoles(data) } catch {}

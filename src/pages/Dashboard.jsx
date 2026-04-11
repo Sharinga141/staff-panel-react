@@ -9,27 +9,30 @@ export default function Dashboard({ user }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function load() {
-      try {
-        const [membres, referents, roles, logs] = await Promise.all([
-          api.get('/membres'),
-          api.get('/referents'),
-          api.get('/roles'),
-          api.get('/logs')
-        ])
-        const today = new Date().toISOString().split('T')[0]
-        const todayLogs = logs.filter(l => l.created_at?.startsWith(today))
-        setStats({ membres: membres.length, referents: referents.length, logs: todayLogs.length })
-        setRecentUsers(roles.slice(0, 5))
-        setRecentLogs(logs.slice(0, 5))
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
     load()
+    const interval = setInterval(load, 30000)
+    return () => clearInterval(interval)
   }, [])
+
+  async function load() {
+    try {
+      const [membres, referents, roles, logs] = await Promise.all([
+        api.get('/membres'),
+        api.get('/referents'),
+        api.get('/roles'),
+        api.get('/logs')
+      ])
+      const today = new Date().toISOString().split('T')[0]
+      const todayLogs = logs.filter(l => l.created_at?.startsWith(today))
+      setStats({ membres: membres.length, referents: referents.length, logs: todayLogs.length })
+      setRecentUsers(roles.slice(0, 5))
+      setRecentLogs(logs.slice(0, 5))
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -65,10 +68,9 @@ export default function Dashboard({ user }) {
               }
             </div>
             <div>
-                <div style={{ fontSize: '17px', fontWeight: 700, marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  Bonjour, {user?.username}
-                  <i className="bi bi-hand-thumbs-up" style={{ fontSize: '18px', color: '#5865F2' }} />
-                </div>
+              <div style={{ fontSize: '17px', fontWeight: 700, marginBottom: '3px' }}>
+                Bonjour, {user?.username} 👋
+              </div>
               <div style={{ fontSize: '12px', color: '#7c7c9a' }}>{dateStr} — Panel opérationnel</div>
             </div>
           </div>
@@ -85,28 +87,22 @@ export default function Dashboard({ user }) {
         {/* Métriques */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0,1fr))', gap: '12px', marginBottom: '20px' }}>
           {[
-              { label: 'Membres enregistrés', value: stats.membres, color: '#5865F2', icon: 'bi-people-fill' },
-              { label: 'Référents actifs', value: stats.referents, color: '#1D9E75', icon: 'bi-person-badge' },
-              { label: "Logs aujourd'hui", value: stats.logs, color: '#E24B4A', icon: 'bi-journal-text' }
-            ].map(m => (
-              <div key={m.label} style={{
-                background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px',
-                padding: '16px 18px', borderTop: `3px solid ${m.color}`
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '11px', color: '#7c7c9a' }}>
-                  <i className={`bi ${m.icon}`} style={{ fontSize: '14px' }} />
-                  {m.label}
-                </div>
-                <div style={{ fontSize: '26px', fontWeight: 700, color: m.color }}>
-                  {loading ? '—' : m.value}
-                </div>
+            { label: 'Membres enregistrés', value: stats.membres, color: '#5865F2', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5865F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+            { label: 'Référents actifs', value: stats.referents, color: '#1D9E75', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+            { label: "Logs aujourd'hui", value: stats.logs, color: '#E24B4A', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E24B4A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg> }
+          ].map(m => (
+            <div key={m.label} style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px', padding: '16px 18px', borderTop: `3px solid ${m.color}` }}>
+              <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: `${m.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+                {m.icon}
               </div>
-            ))}
+              <div style={{ fontSize: '11px', color: '#7c7c9a', marginBottom: '4px' }}>{m.label}</div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: m.color }}>{loading ? '—' : m.value}</div>
+            </div>
+          ))}
         </div>
 
         {/* Grille */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-          {/* Utilisateurs récents */}
           <div style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px', padding: '18px' }}>
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#7c7c9a', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '3px', height: '12px', borderRadius: '2px', background: '#5865F2' }} />
@@ -115,18 +111,11 @@ export default function Dashboard({ user }) {
             {recentUsers.length === 0 && <div className="empty">Aucun utilisateur</div>}
             {recentUsers.map(u => (
               <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '0.5px solid #1e2035' }}>
-                <div style={{
-                  width: '30px', height: '30px', borderRadius: '50%', background: '#26215C',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '11px', fontWeight: 600, color: '#AFA9EC', overflow: 'hidden', flexShrink: 0
-                }}>
-                  {u.avatar_url
-                    ? <img src={u.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : (u.username?.[0] || '?').toUpperCase()
-                  }
+                <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#26215C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 600, color: '#AFA9EC', overflow: 'hidden', flexShrink: 0 }}>
+                  {u.avatar_url ? <img src={u.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (u.username?.[0] || '?').toUpperCase()}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '12px', fontWeight: 500 }}>{u.username}</div>
+                  <div style={{ fontSize: '12px', fontWeight: 500 }}>{u.username || 'Inconnu'}</div>
                   <div style={{ fontSize: '10px', color: '#7c7c9a' }}>{u.role}</div>
                 </div>
                 <span style={{
@@ -138,7 +127,6 @@ export default function Dashboard({ user }) {
             ))}
           </div>
 
-          {/* Activité récente */}
           <div style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px', padding: '18px' }}>
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#7c7c9a', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '3px', height: '12px', borderRadius: '2px', background: '#EF9F27' }} />

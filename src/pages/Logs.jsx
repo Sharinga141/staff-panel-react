@@ -11,7 +11,11 @@ export default function Logs({ user }) {
   const [toast, setToast] = useState(null)
   const perms = getPerms(user?.role)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   async function load() {
     try {
@@ -60,7 +64,7 @@ export default function Logs({ user }) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Topbar user={user} userRole={user?.role || 'Joueur'} />
       <div className="access-denied">
-        <i className="bi bi-slash-circle" style={{ fontSize: '52px', color: '#E24B4A' }} />
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#E24B4A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
         <h2>Accès refusé</h2>
         <p>Vous n'avez pas les permissions pour accéder à cette page.</p>
       </div>
@@ -71,15 +75,9 @@ export default function Logs({ user }) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Topbar user={user} userRole={user?.role || 'Joueur'} />
       <div style={{ flex: 1, overflowY: 'auto', padding: '28px', background: '#0f1117' }}>
-
         <div className="page-header">
-          <div>
-            <h1>Logs</h1>
-            <p>Historique des actions sur le panel</p>
-          </div>
-          <button className="btn-danger" style={{ padding: '9px 18px', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px' }} onClick={clearLogs}>
-            Vider les logs
-          </button>
+          <div><h1>Logs</h1><p>Historique des actions sur le panel</p></div>
+          <button className="btn-danger" style={{ padding: '9px 18px', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px' }} onClick={clearLogs}>Vider les logs</button>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: '12px', marginBottom: '20px' }}>
@@ -89,10 +87,7 @@ export default function Logs({ user }) {
             { label: 'Actions membres', value: stats.membres, color: '#5DCAA5' },
             { label: 'Suppressions', value: stats.suppressions, color: '#E24B4A' }
           ].map(s => (
-            <div key={s.label} style={{
-              background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px',
-              padding: '16px 18px', borderTop: `3px solid ${s.color}`
-            }}>
+            <div key={s.label} style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px', padding: '16px 18px', borderTop: `3px solid ${s.color}` }}>
               <div style={{ fontSize: '11px', color: '#7c7c9a', marginBottom: '8px' }}>{s.label}</div>
               <div style={{ fontSize: '24px', fontWeight: 700, color: s.color }}>{s.value}</div>
             </div>
@@ -101,21 +96,8 @@ export default function Logs({ user }) {
 
         <div className="toolbar">
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input
-              className="search"
-              placeholder="Rechercher dans les logs..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-            <select
-              value={typeFilter}
-              onChange={e => setTypeFilter(e.target.value)}
-              style={{
-                background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '10px',
-                padding: '9px 14px', color: '#e2e0f0', fontSize: '13px',
-                fontFamily: 'inherit', outline: 'none', cursor: 'pointer'
-              }}
-            >
+            <input className="search" placeholder="Rechercher dans les logs..." value={search} onChange={e => setSearch(e.target.value)} />
+            <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '10px', padding: '9px 14px', color: '#e2e0f0', fontSize: '13px', fontFamily: 'inherit', outline: 'none', cursor: 'pointer' }}>
               <option value="">Tous les types</option>
               <option value="connexion">Connexion</option>
               <option value="membre">Membre</option>
@@ -128,14 +110,7 @@ export default function Logs({ user }) {
 
         <div className="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Action</th>
-                <th>Utilisateur</th>
-                <th>Date & heure</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Type</th><th>Action</th><th>Utilisateur</th><th>Date & heure</th></tr></thead>
             <tbody>
               {loading && <tr><td colSpan={4} className="empty">Chargement...</td></tr>}
               {!loading && filtered.length === 0 && <tr><td colSpan={4} className="empty">Aucun log</td></tr>}
@@ -144,17 +119,10 @@ export default function Logs({ user }) {
                 const d = new Date(l.created_at)
                 return (
                   <tr key={l.id}>
-                    <td>
-                      <span style={{
-                        fontSize: '11px', padding: '3px 10px', borderRadius: '20px',
-                        fontWeight: 500, background: c.bg, color: c.color
-                      }}>{l.type}</span>
-                    </td>
+                    <td><span style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: 500, background: c.bg, color: c.color }}>{l.type}</span></td>
                     <td>{l.action}</td>
                     <td style={{ color: '#AFA9EC', fontWeight: 500 }}>{l.username}</td>
-                    <td style={{ color: '#7c7c9a', fontSize: '12px', fontFamily: 'monospace' }}>
-                      {d.toLocaleDateString('fr-FR')} à {d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                    </td>
+                    <td style={{ color: '#7c7c9a', fontSize: '12px', fontFamily: 'monospace' }}>{d.toLocaleDateString('fr-FR')} à {d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
                   </tr>
                 )
               })}
