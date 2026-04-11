@@ -1,0 +1,111 @@
+import { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { logout } from '../lib/api'
+import { getPerms, getRoleBadgeClass } from '../lib/perms'
+
+export default function Topbar({ user, userRole }) {
+  const [clock, setClock] = useState('')
+  const location = useLocation()
+  const perms = getPerms(userRole)
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date()
+      setClock(
+        now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
+        ' — ' + now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      )
+    }
+    update()
+    const t = setInterval(update, 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  const username = user?.username || 'Utilisateur'
+  const avatar = user?.avatar_url
+  const badgeClass = getRoleBadgeClass(userRole)
+
+  const navLinks = [
+    { to: '/', label: 'Dashboard', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> },
+    { to: '/membres', label: 'Membres', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+    { to: '/referents', label: 'Référents', perm: 'seeReferents', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+    { to: '/registres', label: 'Registres', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
+    { to: '/planning', label: 'Planning', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+    { to: '/roles', label: 'Rôles', perm: 'seeRoles', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
+    { to: '/logs', label: 'Logs', perm: 'seeLogs', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> },
+  ]
+
+  return (
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      padding: '0 28px', background: '#16182a', borderBottom: '2px solid #5865F2',
+      height: '72px', flexShrink: 0, position: 'relative'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+        {/* Brand */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '12px',
+          paddingRight: '24px', borderRight: '0.5px solid #2e2e4a',
+          marginRight: '6px', height: '100%'
+        }}>
+          <div style={{ width: '46px', height: '46px', borderRadius: '50%', overflow: 'hidden', background: '#26215C', border: '2px solid #5865F2', flexShrink: 0 }}>
+            <img src="/DOJ.png" alt="DOJ" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display = 'none'} />
+          </div>
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#e2e0f0', letterSpacing: '0.07em' }}>RÉFÉRENCEMENT GOUV</div>
+            <div style={{ fontSize: '9px', color: '#7c7c9a', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '1px' }}>Panel d'administration</div>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+          {navLinks.map(link => {
+            if (link.perm && !perms[link.perm]) return null
+            const active = location.pathname === link.to
+            return (
+              <Link key={link.to} to={link.to} style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: '5px', padding: '0 14px', height: '100%',
+                color: active ? '#EF9F27' : '#7c7c9a',
+                fontSize: '11px', fontWeight: 500,
+                borderBottom: active ? '3px solid #EF9F27' : '3px solid transparent',
+                transition: 'all 0.15s', whiteSpace: 'nowrap', textDecoration: 'none'
+              }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.color = '#e2e0f0'; e.currentTarget.style.background = '#1e2035' }}}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.color = '#7c7c9a'; e.currentTarget.style.background = 'transparent' }}}
+              >
+                {link.icon}
+                {link.label}
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
+
+      {/* Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ fontSize: '11px', color: '#7c7c9a', textAlign: 'right', lineHeight: 1.5 }}>
+          {clock}
+        </div>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '10px',
+          background: '#1e2035', borderRadius: '9px', padding: '5px 12px',
+          border: '0.5px solid #2e2e4a'
+        }}>
+          {avatar
+            ? <img src={avatar} style={{ width: '28px', height: '28px', borderRadius: '50%', border: '1.5px solid #5865F2' }} />
+            : <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#26215C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, color: '#AFA9EC', border: '1.5px solid #5865F2' }}>{username[0]?.toUpperCase()}</div>
+          }
+          <span style={{ fontSize: '12px', fontWeight: 500 }}>{username}</span>
+          <div style={{ width: '0.5px', height: '16px', background: '#2e2e4a' }} />
+          <span className={`badge ${badgeClass}`} style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', padding: '2px 8px', borderRadius: '6px' }}>{userRole}</span>
+        </div>
+        <button onClick={logout} style={{ background: 'none', border: 'none', color: '#E24B4A', cursor: 'pointer', width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  )
+}
