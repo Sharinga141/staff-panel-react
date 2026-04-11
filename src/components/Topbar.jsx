@@ -72,13 +72,34 @@ export default function Topbar({ user, userRole }) {
   const logoSrc = settings.panel_logo || '/DOJ.png'
 
   const navLinks = [
-    { to: '/', label: 'Dashboard' },
-    { to: '/membres', label: 'Membres' },
-    { to: '/referents', label: 'Référents', perm: 'seeReferents' },
-    { to: '/registres', label: 'Registres' },
-    { to: '/planning', label: 'Planning' },
-    { to: '/roles', label: 'Rôles', perm: 'seeRoles' },
-    { to: '/logs', label: 'Logs', perm: 'seeLogs' },
+    {
+      to: '/', label: 'Dashboard',
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    },
+    {
+      to: '/membres', label: 'Membres',
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    },
+    {
+      to: '/referents', label: 'Référents', perm: 'seeReferents',
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    },
+    {
+      to: '/registres', label: 'Registres',
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    },
+    {
+      to: '/planning', label: 'Planning',
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    },
+    {
+      to: '/roles', label: 'Rôles', perm: 'seeRoles',
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    },
+    {
+      to: '/logs', label: 'Logs', perm: 'seeLogs',
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    },
   ]
 
   return (
@@ -99,7 +120,7 @@ export default function Topbar({ user, userRole }) {
             >
               <img src={logoSrc} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.src = '/DOJ.png'} />
               {isAdmin && (
-                <div className="logo-hover-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s', borderRadius: '50%' }}
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s', borderRadius: '50%' }}
                   onMouseEnter={e => e.currentTarget.style.opacity = '1'}
                   onMouseLeave={e => e.currentTarget.style.opacity = '0'}
                 >
@@ -135,16 +156,17 @@ export default function Topbar({ user, userRole }) {
               const active = location.pathname === link.to
               return (
                 <Link key={link.to} to={link.to} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  padding: '0 18px', height: '100%',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  gap: '5px', padding: '0 14px', height: '100%',
                   color: active ? '#EF9F27' : '#7c7c9a',
-                  fontSize: '12px', fontWeight: 500,
+                  fontSize: '11px', fontWeight: 500,
                   borderBottom: active ? '3px solid #EF9F27' : '3px solid transparent',
                   transition: 'all 0.15s', whiteSpace: 'nowrap', textDecoration: 'none'
                 }}
                   onMouseEnter={e => { if (!active) { e.currentTarget.style.color = '#e2e0f0'; e.currentTarget.style.background = '#1e2035' } }}
                   onMouseLeave={e => { if (!active) { e.currentTarget.style.color = '#7c7c9a'; e.currentTarget.style.background = 'transparent' } }}
                 >
+                  {link.icon}
                   {link.label}
                 </Link>
               )
