@@ -2,10 +2,18 @@ import { useState, useEffect } from 'react'
 import { api } from '../lib/api'
 import Topbar from '../components/Topbar'
 
+const TYPE_COLORS = {
+  Support:'#5865F2', Management:'#EF9F27', Ticket:'#1D9E75',
+  Légal:'#AFA9EC', Illégal:'#E24B4A', Wipe:'#C084FC',
+  Modérateur:'#06B6D4', Remboursement:'#F97316', Audience:'#EC4899',
+  Réunion:'#5DCAA5', Autre:'#7c7c9a'
+}
+
 export default function Dashboard({ user }) {
   const [stats, setStats] = useState({ membres: 0, referents: 0, logs: 0 })
   const [recentUsers, setRecentUsers] = useState([])
   const [recentLogs, setRecentLogs] = useState([])
+  const [upcomingEvents, setUpcomingEvents] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,17 +24,19 @@ export default function Dashboard({ user }) {
 
   async function load() {
     try {
-      const [membres, referents, roles, logs] = await Promise.all([
+      const [membres, referents, roles, logs, events] = await Promise.all([
         api.get('/membres'),
         api.get('/referents'),
         api.get('/roles'),
-        api.get('/logs')
+        api.get('/logs'),
+        api.get('/planning/upcoming')
       ])
       const today = new Date().toISOString().split('T')[0]
       const todayLogs = logs.filter(l => l.created_at?.startsWith(today))
       setStats({ membres: membres.length, referents: referents.length, logs: todayLogs.length })
       setRecentUsers(roles.slice(0, 5))
-      setRecentLogs(logs.slice(0, 5))
+      setRecentLogs(logs.slice(0, 4))
+      setUpcomingEvents(events)
     } catch (err) {
       console.error(err)
     } finally {
@@ -42,6 +52,16 @@ export default function Dashboard({ user }) {
     membre: { bg: '#1D9E7515', color: '#5DCAA5' },
     suppression: { bg: '#E24B4A15', color: '#E24B4A' },
     deconnexion: { bg: '#EF9F2715', color: '#EF9F27' }
+  }
+
+  function formatEventDate(dateStr) {
+    const d = new Date(dateStr)
+    const today = new Date()
+    const tomorrow = new Date()
+    tomorrow.setDate(today.getDate() + 1)
+    if (dateStr === today.toISOString().split('T')[0]) return "Aujourd'hui"
+    if (dateStr === tomorrow.toISOString().split('T')[0]) return 'Demain'
+    return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
   }
 
   return (
@@ -101,7 +121,52 @@ export default function Dashboard({ user }) {
           ))}
         </div>
 
-        {/* Grille */}
+        {/* Prochains événements */}
+        <div style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px', padding: '18px', marginBottom: '14px' }}>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: '#7c7c9a', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '3px', height: '12px', borderRadius: '2px', background: '#EF9F27' }} />
+              Prochains événements
+            </div>
+            <a href="/planning" style={{ fontSize: '11px', color: '#5865F2', textDecoration: 'none', fontWeight: 500 }}>Voir tout →</a>
+          </div>
+          {loading && <div className="empty">Chargement...</div>}
+          {!loading && upcomingEvents.length === 0 && (
+            <div className="empty">Aucun événement à venir</div>
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {upcomingEvents.map(ev => {
+              const c = TYPE_COLORS[ev.type] || '#7c7c9a'
+              return (
+                <div key={ev.id} style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  padding: '10px 14px', borderRadius: '10px',
+                  background: '#1e2035', borderLeft: `3px solid ${c}`
+                }}>
+                  <div style={{ flexShrink: 0, textAlign: 'center', minWidth: '60px' }}>
+                    <div style={{ fontSize: '10px', color: '#7c7c9a', textTransform: 'uppercase', fontWeight: 600 }}>
+                      {formatEventDate(ev.date)}
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: c }}>
+                      {ev.heure?.substring(0, 5)}
+                    </div>
+                  </div>
+                  <div style={{ width: '0.5px', height: '32px', background: '#2e2e4a' }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e0f0' }}>{ev.titre}</div>
+                    <div style={{ fontSize: '11px', color: '#7c7c9a', marginTop: '2px' }}>{ev.responsable || '—'}</div>
+                  </div>
+                  <span style={{
+                    fontSize: '10px', padding: '2px 10px', borderRadius: '20px',
+                    fontWeight: 600, background: `${c}22`, color: c, border: `0.5px solid ${c}40`
+                  }}>{ev.type}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Grille bas */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
           <div style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px', padding: '18px' }}>
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#7c7c9a', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -129,7 +194,7 @@ export default function Dashboard({ user }) {
 
           <div style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '12px', padding: '18px' }}>
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#7c7c9a', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '3px', height: '12px', borderRadius: '2px', background: '#EF9F27' }} />
+              <div style={{ width: '3px', height: '12px', borderRadius: '2px', background: '#E24B4A' }} />
               Activité récente
             </div>
             {recentLogs.length === 0 && <div className="empty">Aucun log</div>}
