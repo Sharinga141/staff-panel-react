@@ -38,6 +38,8 @@ export default function Planning({ user }) {
   const [newType, setNewType] = useState({ nom: '', couleur: '#5865F2' })
   const [editType, setEditType] = useState(null)
   const [toast, setToast] = useState(null)
+  const [polesModal, setPolesModal] = useState(false)
+const [newPole, setNewPole] = useState('')
 
   useEffect(() => {
     loadPoles()
@@ -51,8 +53,8 @@ export default function Planning({ user }) {
   }, [weekStart])
 
   async function loadPoles() {
-    try { const data = await api.get('/poles'); setPoles(data) } catch {}
-  }
+  try { const data = await api.get('/planning/poles'); setPoles(data) } catch {}
+}
 
   async function loadTypes() {
     try { const data = await api.get('/planning/types'); setTypes(data) } catch {}
@@ -139,6 +141,24 @@ export default function Planning({ user }) {
       showToast('Type ajouté')
     } catch (err) { showToast('Erreur : ' + (err.error || 'inconnue'), '#E24B4A') }
   }
+  async function addPole() {
+  if (!newPole.trim()) return
+  try {
+    await api.post('/planning/poles', { nom: newPole.trim() })
+    setNewPole('')
+    loadPoles()
+    showToast('Pôle ajouté')
+  } catch (err) { showToast('Erreur', '#E24B4A') }
+}
+
+async function deletePole(id, nom) {
+  if (!confirm(`Supprimer le pôle "${nom}" ?`)) return
+  try {
+    await api.delete(`/planning/poles/${id}`)
+    loadPoles()
+    showToast('Pôle supprimé', '#E24B4A')
+  } catch { showToast('Erreur', '#E24B4A') }
+}
 
   async function saveEditType() {
     try {
@@ -202,6 +222,11 @@ export default function Planning({ user }) {
                 Gérer les types
               </button>
             )}
+            {(user?.role === 'Admin' || user?.role === 'User') && (
+  <button onClick={() => setPolesModal(true)} style={{ background: '#1e2035', border: '0.5px solid #2e2e4a', borderRadius: '9px', padding: '8px 18px', color: '#e2e0f0', fontSize: '12px', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+    Gérer les pôles
+  </button>
+)}
             {canEdit && (
               <button onClick={() => openAddModal()} style={{ background: '#EF9F27', border: 'none', borderRadius: '9px', padding: '8px 18px', color: '#0f1117', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                 + Ajouter
@@ -400,7 +425,33 @@ export default function Planning({ user }) {
           </div>
         </div>
       )}
-
+{polesModal && (
+  <div className="overlay" onClick={e => e.target === e.currentTarget && setPolesModal(false)}>
+    <div className="modal">
+      <h2>Gérer les pôles du planning</h2>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px', minHeight: '40px' }}>
+        {poles.length === 0 && <span style={{ color: '#7c7c9a', fontSize: '13px' }}>Aucun pôle</span>}
+        {poles.map((p, i) => {
+          const colors = ['#5865F2','#1D9E75','#EF9F27','#E24B4A','#AFA9EC','#5DCAA5']
+          const c = colors[i % colors.length]
+          return (
+            <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: `${c}22`, border: `0.5px solid ${c}40`, borderRadius: '8px', padding: '5px 10px' }}>
+              <span style={{ fontSize: '12px', color: c, fontWeight: 500 }}>{p.nom}</span>
+              <button onClick={() => deletePole(p.id, p.nom)} style={{ background: 'none', border: 'none', color: '#E24B4A', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 2px' }}>×</button>
+            </div>
+          )
+        })}
+      </div>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <input value={newPole} onChange={e => setNewPole(e.target.value)} onKeyDown={e => e.key === 'Enter' && addPole()} placeholder="Nom du pôle..." style={{ flex: 1, background: '#0f1117', border: '0.5px solid #2e2e4a', borderRadius: '9px', padding: '9px 12px', color: '#e2e0f0', fontSize: '13px', fontFamily: 'inherit', outline: 'none' }} />
+        <button className="btn-submit" onClick={addPole}>Ajouter</button>
+      </div>
+      <div className="modal-actions">
+        <button className="btn-cancel" onClick={() => setPolesModal(false)}>Fermer</button>
+      </div>
+    </div>
+  </div>
+)}
       {toast && <div className="toast" style={{ background: toast.color }}>✓ {toast.msg}</div>}
     </div>
   )
