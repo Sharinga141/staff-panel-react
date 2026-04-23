@@ -197,7 +197,7 @@ export default function Planning({ user }) {
             <button onClick={() => setWeekStart(w => { const d = new Date(w); d.setDate(d.getDate()+7); return d })} style={{ background: '#16182a', border: '0.5px solid #2e2e4a', borderRadius: '9px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#e2e0f0' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
-            {(user?.role === 'Admin' || user?.role === 'User') && (
+            {(user?.role === 'Admin' || user?.role === 'User' || user?.role === 'Joueur') && (
               <button onClick={() => setTypesModal(true)} style={{ background: '#1e2035', border: '0.5px solid #2e2e4a', borderRadius: '9px', padding: '8px 18px', color: '#e2e0f0', fontSize: '12px', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Gérer les types
               </button>
